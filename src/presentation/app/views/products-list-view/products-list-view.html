@@ -1,0 +1,26 @@
+<ion-content>
+  <app-products-header
+    [searchTerm]="vm.viewState.searchTerm()"
+    [resultsCount]="vm.viewState.filteredProducts().length"
+    (searchChange)="onSearchInput($event)"
+  />
+
+  <div class="max-w-[1320px] w-full mx-auto px-10 py-12 max-lg:px-8 max-sm:px-5 max-sm:py-6">
+    @if (vm.viewState.error(); as error) {
+      <app-products-error [message]="error" class="mb-8" />
+    }
+
+    <app-products-grid
+      [products]="vm.viewState.filteredProducts()"
+      [searchTerm]="vm.viewState.searchTerm()"
+    />
+
+    @if (vm.viewState.isLoading()) {
+      <app-products-loading />
+    }
+  </div>
+
+  <ion-infinite-scroll (ionInfinite)="onIonInfinite()" [disabled]="!vm.viewState.hasNextPage()">
+    <ion-infinite-scroll-content />
+  </ion-infinite-scroll>
+</ion-content>

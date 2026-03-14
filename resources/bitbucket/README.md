@@ -1,12 +1,8 @@
-<div align="center">
-
 # Ionic Clean Architecture
 
 **A production-ready Clean Architecture + MVVM template for Ionic / Capacitor**
 
 Built with Angular signals, zoneless change detection, standalone components, and Observable-based storage for Capacitor SQLite compatibility.
-
-<br/>
 
 [![Ionic](https://img.shields.io/badge/Ionic-8.8-3880FF?style=for-the-badge&logo=ionic&logoColor=white)](https://ionicframework.com)
 [![Angular](https://img.shields.io/badge/Angular-20.0-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.dev)
@@ -16,8 +12,6 @@ Built with Angular signals, zoneless change detection, standalone components, an
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.2-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Vitest](https://img.shields.io/badge/Vitest-3.1-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 [![Node.js](https://img.shields.io/badge/Node.js-25.6.1-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
-
-</div>
 
 ---
 
@@ -135,7 +129,6 @@ src/
 All `StorageSource` methods return `Observable<T>` — the critical difference from a standard Angular app. Synchronous storage would not be compatible with Capacitor SQLite or other async native storage plugins.
 
 ```ts
-// Abstract contract — all implementations must be Observable
 abstract class StorageSource {
   abstract get<T>(key: string): Observable<T | null>;
   abstract set<T>(key: string, value: T): Observable<void>;
@@ -143,10 +136,9 @@ abstract class StorageSource {
 }
 ```
 
-Repository implementations chain storage operations with `switchMap` instead of direct calls:
+Repository implementations chain storage operations with `switchMap`:
 
 ```ts
-// auth-implementation.repository.ts
 override login(username: string, password: string): Observable<LoginEntity> {
   return this.remote.login(username, password).pipe(
     map((dto) => this.loginMapper.mapFrom(dto)),
@@ -159,13 +151,12 @@ override login(username: string, password: string): Observable<LoginEntity> {
 
 ### Ionic infinite scroll with Signals
 
-Replaces the Angular `IntersectionObserver` + sentinel pattern with `IonInfiniteScroll` + `@ViewChild` + `effect()`:
+Replaces `IntersectionObserver` + sentinel with `IonInfiniteScroll` + `@ViewChild` + `effect()`:
 
 ```ts
 @ViewChild(IonInfiniteScroll) private readonly infiniteScroll?: IonInfiniteScroll;
 
 constructor() {
-  // Complete the Ionic spinner when loading finishes
   effect(() => {
     if (!this.vm.viewState.isLoading()) {
       this.infiniteScroll?.complete();
@@ -176,51 +167,15 @@ constructor() {
 
 ### DTO / DBO separation
 
-Each datasource owns its own data model. DTOs and DBOs are never shared between layers:
-
 ```
 Remote datasource  →  DTO  →  DtoToEntityMapper  →  Entity
 Local datasource   →  DBO  →  DboToEntityMapper  →  Entity
 ```
 
 - **DTO** (`remote/dto/`) — mirrors the API response shape
-- **DBO** (`local/dbo/`) — models what is persisted in local storage (e.g. includes `cachedAt`)
-
-### MVVM per feature
-
-Each view is split into three files with clear responsibilities:
-
-```
-views/products-list-view/
-├── components/
-│   └── product-card/
-│       ├── product-card.ts            ← component class
-│       ├── product-card.html          ← template
-│       └── product-card.scss          ← styles
-├── viewmodel/
-│   ├── products.state.ts              ← signals (single source of truth)
-│   └── products.viewmodel.ts          ← orchestrates usecase calls + state updates
-├── products-list-view.ts              ← component class, reads viewState signals
-├── products-list-view.html            ← template (ion-content, ion-infinite-scroll)
-└── products-list-view.scss            ← styles
-```
-
-### Dependency injection per route
-
-Each feature registers its own providers via a `provideXxxDI()` function scoped to the route — no global pollution:
-
-```ts
-// public-layout.routes.ts
-{
-  path: '',
-  providers: [provideProductsDI()],
-  loadComponent: () => import('./views/products-list-view/...')
-}
-```
+- **DBO** (`local/dbo/`) — models what is persisted in local storage (includes `cachedAt`)
 
 ### Cache with TTL
-
-The local datasource persists a `ProductsDbo` with `cachedAt` embedded and invalidates it after **1 hour**:
 
 ```ts
 // save (fire-and-forget)
@@ -275,7 +230,7 @@ Repositories map HTTP status codes to domain errors via `catchError` + `switch`.
 
 ### i18n
 
-Translation keys live in `src/core/assets/i18n/en.json`. Templates use `| translate` from `@ngx-translate/core`. ViewModels always store the **key**, never the translated string.
+Translation keys live in `src/core/assets/i18n/en.json`. Templates use `| translate`. ViewModels always store the **key**, never the translated string.
 
 ---
 
@@ -287,7 +242,7 @@ just coverage                   # With coverage report
 open coverage/index.html        # Open HTML coverage report
 ```
 
-Tests use **Vitest** (no Jest, no Karma). Pure logic runs without Angular TestBed. Components that need DI use `TestBed.configureTestingModule`.
+Tests use **Vitest** (no Jest, no Karma). Pure logic runs without Angular TestBed.
 
 ---
 
