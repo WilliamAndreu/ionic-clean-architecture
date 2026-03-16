@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -9,4 +9,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class UserDetailError {
   @Input({ required: true }) message!: string;
+  @Input() showLoginButton = false;
+  @Output() loginClick = new EventEmitter<void>();
 }

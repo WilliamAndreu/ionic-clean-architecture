@@ -19,5 +19,6 @@
     "units": "units"
   },
   "profile": { "email": "Email", "gender": "Gender", "sign_out": "Sign out" },
+  "auth": { "go_to_login": "Go to login" },
   "common": { "back": "Products", "loading": "Loading...", "retry": "Retry" }
 }

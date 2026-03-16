@@ -21,6 +21,10 @@ coverage:
 lint:
     npm run lint
 
+# Ejecuta el linter y corrige errores automáticamente
+lint-fix:
+    npm run lint -- --fix
+
 # Formatea el código
 format:
     npm run format

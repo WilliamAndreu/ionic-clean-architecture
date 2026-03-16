@@ -242,13 +242,15 @@ getProducts(skip: number): Observable<ProductsDbo | null> {
 
 ### Typed error handling
 
-Errors are organized in three layers, each adding more specificity:
+Errors flow through three layers, each adding more specificity:
 
 ```
 HTTP response
-    ↓  repository: catchError + switch (err.status)
+    ↓  publicInterceptor: maps HTTP status → core AppError
+Core error  (NetworkError, BadRequestError, UnauthorizedError…)
+    ↓  repository: catchError + instanceof checks → domain error
 Domain error  (InvalidCredentialsError, ProductNotFoundError…)
-    ↓  extends core AppError — already carries messageKey
+    ↓  usecase: passes AppError through, generic fallback otherwise
 ViewModel: err instanceof AppError ? err.messageKey : 'errors.unknown'
     ↓
 {{ error() | translate }}
@@ -259,6 +261,7 @@ ViewModel: err instanceof AppError ? err.messageKey : 'errors.unknown'
 | Class | HTTP Status | i18n Key |
 |---|:---:|---|
 | `NetworkError` | `0` | `errors.network` |
+| `BadRequestError` | `400` | `errors.unknown` |
 | `UnauthorizedError` | `401` | `errors.unauthorized` |
 | `NotFoundError` | `404` | `errors.not_found` |
 | `ServerError` | `5xx` | `errors.server` |
@@ -271,7 +274,7 @@ ViewModel: err instanceof AppError ? err.messageKey : 'errors.unknown'
 | `SessionExpiredError` | `UnauthorizedError` | `errors.auth.session_expired` |
 | `ProductNotFoundError` | `NotFoundError` | `errors.products.not_found` |
 
-Repositories map HTTP status codes to domain errors via `catchError` + `switch`. ViewModels read `err.messageKey` directly — no mapping needed at the presentation layer.
+`publicInterceptor` converts every `HttpErrorResponse` into a typed `AppError` before it reaches the repository. Repositories then check `instanceof` to map core errors to domain-specific ones. ViewModels read `err.messageKey` directly — no mapping needed at the presentation layer.
 
 ### i18n
 
@@ -300,6 +303,7 @@ Tests use **Vitest** (no Jest, no Karma). Pure logic runs without Angular TestBe
 | `just test` | Run all tests |
 | `just coverage` | Run tests with coverage report |
 | `just lint` | ESLint |
+| `just lint-fix` | ESLint (auto-fix) |
 | `just format` | Prettier (write) |
 | `npm run build` | Production web build |
 | `just sync` | Build web + sync to native projects |

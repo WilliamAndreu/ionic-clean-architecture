@@ -9,6 +9,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2.0.1] — 2026-03-16
+
+### Added
+- **`BadRequestError`** — new core error class (`src/core/errors/`) mapping HTTP `400` responses; enables correct detection of invalid credentials from DummyJSON (which returns `400`, not `401`)
+- **`just lint-fix`** — new justfile command that runs ESLint with `--fix` for auto-fixable rules
+- **`auth.go_to_login`** i18n key added to `src/core/assets/i18n/en.json`
+- **"Go to login" button** in `UserDetailError` component — shown only when the error is `errors.auth.session_expired`; calls `vm.logout()` to clear tokens and navigate back to login
+
+### Changed
+- **`publicInterceptor`** — now maps HTTP `400` → `BadRequestError` in addition to existing status mappings
+- **Repository `catchError` blocks** — replaced dead `instanceof HttpErrorResponse` checks (interceptor already converts HTTP errors before they reach repositories) with `instanceof AppError` subclass checks; fixes fallback always firing `ServerError`
+- **UseCase `catchError` blocks** — simplified to pass `AppError` through as-is; only apply a generic fallback for truly unexpected non-`AppError` throws
+- **Login form** — migrated to Angular Reactive Forms (`FormBuilder.nonNullable.group()`); submit guarded by `form.invalid`
+- **Button border-radius** — `!rounded-xl` (`!` prefix required for Ionic's CSS specificity override) applied to the sign-in button and the "Go to login" button
+- **ngx-translate configuration** — `defaultLanguage` replaced with `lang` + `fallbackLang` to correctly activate the language on startup
+
+### Fixed
+- **Login showing "An unexpected error occurred"** — DummyJSON returns HTTP `400` for wrong credentials; `BadRequestError` + repository `instanceof` check now maps it correctly to `InvalidCredentialsError` → `errors.auth.invalid_credentials`
+- **`catchError` in repositories was dead code** — `instanceof HttpErrorResponse` was never `true` after `publicInterceptor` already converted HTTP errors to `AppError`; repository now correctly propagates domain-specific errors
+
+---
+
 ## [2.0.0] — 2026-03-13
 
 Full rewrite of the architecture template. Migrated from the original Ionic scaffold to a production-ready Clean Architecture + MVVM system with Products + Auth via DummyJSON API.
