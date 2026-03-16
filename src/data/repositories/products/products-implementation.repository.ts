@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
 import { ProductsRepository } from '@repositories/products/products.repository';
 import { ProductsRemoteDataSource } from '@data/datasource/products/source/products-remote.datasource';
 import { ProductsLocalDataSource } from '@data/datasource/products/source/products-local.datasource';
@@ -10,7 +9,7 @@ import { ProductDboToEntityMapper } from './mappers/product-dbo-to-entity.mapper
 import { ProductEntity, ProductsEntity } from '@models/products/product-entity.model';
 import { ProductsDbo } from '@data/datasource/products/local/dbo/products.dbo';
 import { ProductDbo } from '@data/datasource/products/local/dbo/product.dbo';
-import { NetworkError, ServerError } from 'src/core/errors/app-error';
+import { AppError, NotFoundError, ServerError } from 'src/core/errors/app-error';
 import { ProductNotFoundError } from 'src/domain/errors/products/products.errors';
 
 @Injectable()
@@ -33,11 +32,7 @@ export class ProductsImpRepository extends ProductsRepository {
         console.log(`[HTTP] GET /products?skip=${skip}&limit=${limit}`);
         return this.remote.getProducts(limit, skip).pipe(
           catchError((err: unknown) => {
-            if (err instanceof HttpErrorResponse)
-              switch (err.status) {
-                case 0:
-                  return throwError(() => new NetworkError('errors.network'));
-              }
+            if (err instanceof AppError) return throwError(() => err);
             return throwError(() => new ServerError('errors.server'));
           }),
           tap((dto) => {
@@ -78,13 +73,9 @@ export class ProductsImpRepository extends ProductsRepository {
     return this.remote.getProduct(id).pipe(
       map((dto) => this.dtoMapper.mapFrom(dto)),
       catchError((err: unknown) => {
-        if (err instanceof HttpErrorResponse)
-          switch (err.status) {
-            case 404:
-              return throwError(() => new ProductNotFoundError('errors.products.not_found'));
-            case 0:
-              return throwError(() => new NetworkError('errors.network'));
-          }
+        if (err instanceof NotFoundError)
+          return throwError(() => new ProductNotFoundError('errors.products.not_found'));
+        if (err instanceof AppError) return throwError(() => err);
         return throwError(() => new ServerError('errors.server'));
       }),
     );

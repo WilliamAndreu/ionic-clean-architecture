@@ -1,14 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
 import { AuthRepository } from '@repositories/auth/auth.repository';
 import { AuthRemoteDataSource } from '@data/datasource/auth/source/auth-remote.datasource';
 import { AuthLocalDataSource } from '@data/datasource/auth/source/auth-local.datasource';
 import { LoginDtoToEntityMapper, UserDtoToEntityMapper } from './mappers/auth-dto-to-entity.mapper';
 import { TokensDboToEntityMapper } from './mappers/auth-dbo-to-entity.mapper';
 import { LoginEntity, TokensEntity, UserEntity } from '@models/auth/auth-entity.model';
-import { NetworkError, ServerError } from 'src/core/errors/app-error';
+import {
+  AppError,
+  BadRequestError,
+  ServerError,
+  UnauthorizedError,
+} from 'src/core/errors/app-error';
 import { InvalidCredentialsError, SessionExpiredError } from 'src/domain/errors/auth/auth.errors';
 
 @Injectable()
@@ -33,15 +37,9 @@ export class AuthImpRepository extends AuthRepository {
           .pipe(map(() => entity)),
       ),
       catchError((err: unknown) => {
-        if (err instanceof HttpErrorResponse)
-          switch (err.status) {
-            case 401:
-              return throwError(
-                () => new InvalidCredentialsError('errors.auth.invalid_credentials'),
-              );
-            case 0:
-              return throwError(() => new NetworkError('errors.network'));
-          }
+        if (err instanceof UnauthorizedError || err instanceof BadRequestError)
+          return throwError(() => new InvalidCredentialsError('errors.auth.invalid_credentials'));
+        if (err instanceof AppError) return throwError(() => err);
         return throwError(() => new ServerError('errors.server'));
       }),
     );
@@ -51,13 +49,9 @@ export class AuthImpRepository extends AuthRepository {
     return this.remote.getAuthUser().pipe(
       map((dto) => this.userMapper.mapFrom(dto)),
       catchError((err: unknown) => {
-        if (err instanceof HttpErrorResponse)
-          switch (err.status) {
-            case 401:
-              return throwError(() => new SessionExpiredError('errors.auth.session_expired'));
-            case 0:
-              return throwError(() => new NetworkError('errors.network'));
-          }
+        if (err instanceof UnauthorizedError)
+          return throwError(() => new SessionExpiredError('errors.auth.session_expired'));
+        if (err instanceof AppError) return throwError(() => err);
         return throwError(() => new ServerError('errors.server'));
       }),
     );
@@ -78,13 +72,9 @@ export class AuthImpRepository extends AuthRepository {
             this.local.saveTokens(this.tokensDboMapper.mapTo(entity)).pipe(map(() => entity)),
           ),
           catchError((err: unknown) => {
-            if (err instanceof HttpErrorResponse)
-              switch (err.status) {
-                case 401:
-                  return throwError(() => new SessionExpiredError('errors.auth.session_expired'));
-                case 0:
-                  return throwError(() => new NetworkError('errors.network'));
-              }
+            if (err instanceof UnauthorizedError)
+              return throwError(() => new SessionExpiredError('errors.auth.session_expired'));
+            if (err instanceof AppError) return throwError(() => err);
             return throwError(() => new ServerError('errors.server'));
           }),
         );

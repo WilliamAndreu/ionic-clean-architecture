@@ -7,7 +7,11 @@
     }
 
     @if (vm.viewState.error(); as error) {
-      <app-user-detail-error [message]="error" />
+      <app-user-detail-error
+        [message]="error"
+        [showLoginButton]="error === 'errors.auth.session_expired'"
+        (loginClick)="vm.logout()"
+      />
     }
 
     @if (vm.viewState.user(); as user) {
