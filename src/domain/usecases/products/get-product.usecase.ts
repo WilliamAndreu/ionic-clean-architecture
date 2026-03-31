@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
-import { UseCase } from '@interface-core/use-case';
+import { UseCase } from '@interfaces/use-case';
 import { ProductsRepository } from '@repositories/products/products.repository';
 import { ProductEntity } from '@models/products/product-entity.model';
 import { AppError } from 'src/core/errors/app-error';
