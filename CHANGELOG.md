@@ -9,6 +9,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2.1.1] — 2026-04-02
+
+### Added
+- `src/tailwind.css` — CSS entry point for Tailwind IntelliSense plugin compatibility with Sass (`@use './tailwind'` in `global.scss`)
+- `@theme` block with centralized design tokens: color (`--color-bg-deep`, `--color-bg-gallery`) and typography (`--text-2xs`, `--text-tag`, `--text-body`, `--text-md`, `--text-display`, `--text-price`)
+- `:root` CSS custom properties for SCSS-only use: `--color-overlay`, `--color-border-subtle`
+- `.vscode/settings.json`: Tailwind IntelliSense config, ESLint on save, file associations for `tailwind.css`
+- `.vscode/extensions.json`: `dbaeumer.vscode-eslint`, `bradlc.vscode-tailwindcss`
+
+### Changed
+- Migrated Tailwind CSS from v3 config (`tailwind.config.js`) to v4 `@theme` syntax
+- Updated opacity notation from arbitrary (`/[0.06]`) to numeric (`/6`) across all HTML templates
+- Updated important modifier from prefix (`!class`) to suffix (`class!`) per Tailwind v4 spec
+- Updated `max-w` arbitrary values to Tailwind v4 spacing scale (`max-w-[420px]` → `max-w-105`, `max-w-[800px]` → `max-w-200`)
+- Updated arbitrary font sizes to named tokens (`text-[13px]` → `text-body`, `text-[10px]` → `text-2xs`, etc.)
+- Replaced hardcoded hex colors in HTML with semantic classes (`bg-[#0f0f0f]` → `bg-bg-gallery`, `text-[#0b0b0b]` → `text-bg-deep`)
+- Replaced hardcoded `rgba()` values in `products-header.scss` with CSS custom properties
+
+### Removed
+- `tailwind.config.js` — unused in Tailwind v4
+- `.editorconfig` — redundant with Prettier
+- `ionic.ionic` VS Code extension recommendation (deprecated June 2025)
+
+---
+
 ## [2.1.0] — 2026-03-31
 
 ### Added

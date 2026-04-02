@@ -10,7 +10,7 @@
  */
 
 /* Tailwind */
-@use 'tailwindcss';
+@use './tailwind';
 
 /* Core CSS required for Ionic components to work properly */
 @import '@ionic/angular/css/core.css';
@@ -38,10 +38,6 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
-
-html,
-body {
-}
 
 .fade-in-animation {
   animation: fadeIn 1s ease-out forwards;

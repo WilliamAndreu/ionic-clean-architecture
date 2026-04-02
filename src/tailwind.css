@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+/* Variables for SCSS use only via var() */
+:root {
+  --color-overlay: rgba(9, 9, 9, 0.9);
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+@theme {
+  /* === COLORS === */
+
+  /* Dark backgrounds */
+  --color-bg-deep: #0b0b0b;
+  --color-bg-gallery: #0f0f0f;
+
+  /* === CUSTOM TYPOGRAPHY === */
+  /* Tailwind already covers: xs=12px, sm=14px, lg=18px, xl=20px, 2xl=24px */
+
+  --text-2xs: 0.625rem; /* 10px — badges, category tags */
+  --text-tag: 0.6875rem; /* 11px — labels, small subtitles */
+  --text-body: 0.8125rem; /* 13px — main app text */
+  --text-md: 0.9375rem; /* 15px — card prices */
+  --text-display: 1.75rem; /* 28px — page titles */
+  --text-price: 2rem; /* 32px — main product price */
+}

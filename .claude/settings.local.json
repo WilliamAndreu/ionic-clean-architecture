@@ -32,7 +32,10 @@
       "Bash(npm uninstall:*)",
       "Bash(npx cap:*)",
       "Bash(./node_modules/.bin/prettier:*)",
-      "Bash(chmod +x:*)"
+      "Bash(chmod +x:*)",
+      "WebFetch(domain:youtrack.jetbrains.com)",
+      "WebFetch(domain:marketplace.visualstudio.com)",
+      "Bash(npm run:*)"
     ]
   }
 }
